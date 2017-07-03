@@ -1,0 +1,473 @@
+<!doctype html>
+<html>
+<style>
+img { margin-left: 30px; margin-right: 30px; width: 80px; height: 50px;}
+</style>
+<head>
+	<link href="experiment.css" rel="stylesheet"></link>
+	<title>Assoziationen</title>
+	<script src="scripts/jquery-1.11.3.min.js"></script>
+	<script src="node_modules/underscore/underscore.js"></script>
+	<script src="scripts/jspsych.js"></script>
+	<script src="scripts/jspsych-text.js"></script>
+	<script src="scripts/jspsych-survey-text.js"></script>
+	<script src="scripts/jspsych-single-stim.js"></script>
+	<script src="scripts/timeout.js"></script>
+	<script src="scripts/timeout_60.js"></script>
+	<script type="text/javascript" src="scripts/jquery.js"></script>
+	<script type="text/javascript">
+
+
+//	    timeLeft=10
+	    function timeMsg() {
+				--timeLeft
+				if(timeLeft < 0){timeLeft=0};
+	            $("#time").val(timeLeft);
+	            setTimeout("timeMsg()",1000);
+	    }
+
+
+	    $(document).ready(function() {
+	        $("#time").val(timeLeft);
+	        setTimeout("timeMsg()",1000);
+	    });
+
+	</script>
+<script>
+$(document).on("keydown", function (e) {
+    if (e.which === 8 && !$(e.target).is("input, textarea")) {
+        e.preventDefault();
+    }
+});
+	</script>
+
+
+</head>
+<body>
+	<div id="jspsych_target"></div>
+</body>
+<script type="text/javascript">
+
+var logo = [
+	'<p><img src=img/Logo.png style="width:200px;height:auto"></p>'
+];
+
+var rules = [''];
+
+var peronsl_code = ['<p><b>Bitte gib Deinen 6-stelligen Personen-Code ein</b><br><p>***</p></p> <p style="font-size:20px"> Zur Erinnerung: <br><br><i>Stelle 1</i>: Der erste Buchstabe des Vornamens Deiner Mutter,</p> <p style="font-size:20px"><i>Stelle 2</i>: Der erste Buchstabe des Vornamens Deines Vaters,</p> <p style="font-size:20px"><i>Stellen 3-6</i>: Dein Geburtsjahr; <i>Beispiel</i>: FC1984</p>'];
+
+
+
+
+// Stimuli erstellen
+var fluency = [
+	'Stra\u00dfe',
+	'rot',
+	'K\u00f6nig',
+	'Licht',
+	'Berg',
+	'L\u00f6we'
+];
+
+//je 2 Items ziehen
+var fluency_rand = _.sample(fluency, [2]);
+
+var combination = [
+	'Urlaub - hoch',
+	'Luft - rund',
+	'Gefahr - Natur',
+	'Text - Bewegung',
+	'Technik - scharf',
+	'Zeit - kurz'
+];
+
+var combination_rand = _.sample(combination, [2]);
+
+var flexibility = [
+	'Mond',
+	'kalt',
+	'Hand',
+	'Ozean',
+	'Musik',
+	'Schaf'
+];
+
+console.log('Alle Items "flexibility": ' + flexibility)
+//je 2 Items ziehen
+var flexibility_rand = _.sample(flexibility, [2]);
+console.log('gezogene Stimuli für normale flex. Tasks: ' + flexibility_rand)
+
+var index = [];
+var substract_stimuli = function(stimuli_past){
+
+	for (i = 0; i < stimuli_past.length; i++){
+			index.push(flexibility.indexOf(stimuli_past[i]));
+		}
+
+		return index;
+
+	};
+
+var id = substract_stimuli(flexibility_rand);
+console.log("index der alten Stimuli: "+id)
+
+function remove_Stimuli(arr) {
+    var what, a = arguments, L = a.length, ax;
+    while (L > 1 && arr.length) {
+        what = a[--L];
+        while ((ax= arr.indexOf(what)) !== -1) {
+            arr.splice(ax, 1);
+        }
+    }
+    return arr;
+}
+
+
+var stimuli_left = remove_Stimuli(flexibility, flexibility_rand[0], flexibility_rand[1]);
+console.log('übrige Stimuli: ' + stimuli_left);
+
+var random_stimuli_left = _.sample(flexibility, [1]);
+console.log("Random Stimuli für Assoziation–Recall: " + random_stimuli_left);
+
+
+var dissociation = [
+	'Dieb',
+	'Tisch',
+	'K\u00e4se',
+	'Erde',
+	'Bl\u00fcte',
+	'Baby'];
+
+//je 2 Items ziehen
+var dissociation_rand = _.sample(dissociation, [2]);
+dissociation_rand.push()
+
+//Vektor mit verschiedenen Tests erstellen
+var category = [fluency_rand, combination_rand, flexibility_rand, dissociation_rand];
+var category_rand = _.sample(category, [4]);
+console.log('category_rand: ' + category_rand);
+
+
+function checkAvailability(arr, val) {
+    return arr.some(arrVal => val === arrVal);
+};
+
+var welcome_message = {
+	type: "single-stim",
+	stimuli: logo,
+	is_html: true,
+	choices: [13],
+	timing_post_trial: 10,
+	prompt: '<p>Willkommen zum Assoziationstest im Rahmen des OMFix-Projekts!</p> <p> *** </p> <p>Im Anschluss wirst Du vier Tests durchlaufen, in denen Du gebeten wirst Assoziationen zu produzieren. Vor jedem dieser Tests bekommst du eine Instruktion.</p>***<p>Bitte dr\u00fccke Enter wenn du bereit bist</p>'
+};
+
+var demog_block ={
+	type: "survey-text",
+	questions: [[peronsl_code]],
+};
+
+var instruction_block = {
+	type: "text",
+	text: [rules],
+};
+
+/*var Lead = {
+	type: 'text',
+	text: ['<p><h3>Dr\u00fccke </h3></p><br> <img src=img/enter.png style="height: 100px;width: auto"> </p><p><br> <h3> wenn Du bereit f\u00fcr die zweite Aufgabe bist</h3><p>']
+}*/
+var Lead = {
+	type: 'text',
+	text: ['<p>Dr&uumlcke die Enter-Taste, wenn Du bereit bist, die n&aumlchste Aufgabe zu bearbeiten.<p>']
+}
+
+
+var test_block_1_1 = {
+	//type: "survey-text2",
+	type: "survey-text2",
+	//questions: [['stim1'],['stim2']]
+	questions: [[_.flatten(category_rand)[0]]],
+	data: [[_.flatten(category_rand).slice(0,1)]],
+	rows: 10,
+	columns: 10
+	//questions: [stimuli2]
+};
+
+var test_block_1_2 = {
+	//type: "survey-text2",
+	type: "survey-text2",
+	//questions: [['stim1'],['stim2']]
+	questions: [[_.flatten(category_rand)[1]]],
+	data: [[_.flatten(category_rand).slice(1,2)]],
+	rows: 10,
+	columns: 10
+	//questions: [stimuli2]
+};
+
+var test_block_2_1 = {
+	//type: "survey-text2",
+	type: "survey-text2",
+	//questions: [['stim1'],['stim2']]
+	questions: [[_.flatten(category_rand)[2]]],
+	data: [[_.flatten(category_rand).slice(2,3)]],
+	rows: 40,
+	columns: 10
+	//questions: [stimuli2]
+};
+
+var test_block_2_2 = {
+	//type: "survey-text2",
+	type: "survey-text2",
+	//questions: [['stim1'],['stim2']]
+	questions: [[_.flatten(category_rand)[3]]],
+	data: [[_.flatten(category_rand).slice(3,4)]],
+	rows: 40,
+	columns: 10
+	//questions: [stimuli2]
+};
+
+var test_block_3_1 = {
+	//type: "survey-text2",
+	type: "survey-text2",
+	//questions: [['stim1'],['stim2']]
+	questions: [[_.flatten(category_rand)[4]]],
+	data: [[_.flatten(category_rand).slice(4,5)]],
+	rows: 40,
+	columns: 10
+	//questions: [stimuli2]
+};
+
+var test_block_3_2 = {
+	//type: "survey-text2",
+	type: "survey-text2",
+	//questions: [['stim1'],['stim2']]
+	questions: [[_.flatten(category_rand)[5]]],
+	data: [[_.flatten(category_rand).slice(5,6)]],
+	rows: 40,
+	columns: 10
+	//questions: [stimuli2]
+};
+
+var test_block_4_1 = {
+	//type: "survey-text2",
+	type: "survey-text2",
+	//questions: [['stim1'],['stim2']]
+	questions: [[_.flatten(category_rand)[6]]],
+	data: [[_.flatten(category_rand).slice(6,7)]],
+	rows: 40,
+	columns: 10
+	//questions: [stimuli2]
+};
+
+var test_block_4_2 = {
+	//type: "survey-text2",
+	type: "survey-text2",
+	//questions: [['stim1'],['stim2']]
+	questions: [[_.flatten(category_rand)[7]]],
+	data: [[_.flatten(category_rand).slice(7,8)]],
+	rows: 40,
+	columns: 10
+	//questions: [stimuli2]
+};
+
+
+var intro_fluency = {
+	type:'text',
+	text: ['<p><h2>Instruktion: Assoziationsliste</h2></p><p>Es folgt die Darbietung eines einzelnen Begriffs (z.B. Sommer). Nenne <b>2 Minuten</b> lang alle Dinge, die Dir dazu einfallen.</p>***<p><img src="img/arrow.png" style="height:20px;width:auto;margin:5px;margin-bottom:-2px">Versuche m\u00f6glichst viele, verschiedene Assoziationen zu nennen.<br><img src="img/arrow.png" style="height:20px;width:auto;margin:5px;margin-bottom:-2px">Gewertet werden Anzahl und Vielfalt der Antworten.</p>***<p>Antworte mit einzelnen W\u00f6rtern (z.B. Strand) und nicht in Form von Phrasen. Beginne f&uumlr jede Assoziation eine neue Zeile (durch Dr&uumlcken der Enter-Taste).</p>***<p>Beispiel zum Begriff <b>Sommer</b><br><p>Strand<br>Meer<br>warm<br>schwimmen<br>...</p>***<p><i>Bei Fragen wende Dich bitte an die Versuchsleiterin/den Versuchsleiter.</i></p><p>Dr&uumlcke Enter, um zu beginnen.']
+};
+
+var intro_flexibility = {
+	type:'text',
+	text: ['<p><h2>Instruktion: Assoziationskette</h2></p><p>Es folgt die Darbietung eines einzelnen Begriffs (z.B. Sommer).<br>Nenne <b>2 Minuten</b> lang jeweils Deine erste Assoziation zum zuletzt genannten Wort.<br>D.h. nenne zuerst Deine erste Assoziation zum vorgegebenen Begriff, dann Deine erste Assoziation zu Deiner vorherigen Antwort usw.<br>So entsteht eine Kette von Assoziationen, in der sich jede einzelne auf ihre Vorg\u00e4ngerin bezieht.</p>***<p><img src="img/arrow.png" style="height:20px;width:auto;margin:5px;margin-bottom:-2px">Versuche eine m\u00f6glichst <b>lange, abwechslungsreiche</b> Kette zu produzieren.<br><img src="img/arrow.png" style="height:20px;width:auto;margin:5px;margin-bottom:-2px">gewertet werden Anzahl und Flexibilit\u00e4t Deiner Antworten.<br><br>Bitte antworte mit einzelnen W\u00f6rter und nicht in Form von Phrasen.<br>Beginne f&uumlr jede Assoziation eine neue Zeile (durch Dr&uumlcken der Enter-Taste).</p>***<p>Beispiel zum Begriff <b>Sommer</b><br>' +
+	'<br>Strand<br>Sandburg<br>Schlo\u00df<br>Ritter<br>... </p>***<p><i>Bei Fragen wende Dich bitte an die Versuchsleiterin/den Versuchsleiter.</i></p><p>Dr&uumlcke Enter, um zu beginnen.']
+};
+var intro_dissociation = {
+	type:'text',
+	text: ['<p><h2>Instruktion: Dissoziationen</h2></p><p>Es folgt die Darbietung eines einzelnen Begriffs (z.B. Sommer).<br>Nenne <b>2 Minuten</b> lang m\u00f6glichst viele Dinge, die mit dem jeweils <br> zuletzt genannten Begriff m\u00f6glichst <b>wenig</b> zu tun haben.<br>Vermeide dabei Wiederholungen und allzu gro\u00dfe \u00c4hnlichkeiten Deiner Antworten.</p>***<p> <img src="img/arrow.png" style="height:20px;width:auto;margin:5px;margin-bottom:-2px">Versuche eine m&oumlglichst <b>lange, wenig zusammenh\u00e4ngende</b> Kette zu bilden.<br><img src="img/arrow.png" style="height:20px;width:auto;margin:5px;margin-bottom:-2px">Gewertet werden Anzahl und Distanz Deiner Antworten.<br><br>Antworte mit einzelnen W\u00f6rtern und nicht in Form von Phrasen. <br>Beginne f&uumlr jedes Wort eine neue Zeile (durch Dr&uumlcken der Enter-Taste).<p>***</p>Beispiel zum Begriff <b>Sommer</b><br><p>Tisch<br>violett<br>Auto<br>Hund<br>...</p>***<p><i>Bei Fragen wende Dich bitte an die Versuchsleiterin/den Versuchsleiter.</i></p><p>Dr&uumlcke Enter, um zu beginnen.</p>']
+};
+var intro_combination = {
+	type:'text',
+	text: ['<p><h2>Instruktion: Kombinierende Assoziationen</h2></p><p>Es folgt die Darbietung eines Wortpaares (z.B. Sommer - wei\u00df).<br>Nenne <b>2 Minuten</b> lang Assoziationen zum vorgegebenenen Wortpaar.<br><br>Alle Assoziationen sollen dabei irgendeinen Bezug zu <b>beiden</b> W\u00f6rtern haben.<br>Du brauchst Deine Einf\u00e4lle nicht zu erkl\u00e4ren.</p>***<p><img src="img/arrow.png" style="height:20px;width:auto;margin:5px;margin-bottom:-2px">Versuche m\u00f6glichst viele, unterschiedliche Assoziationen zu produzieren.<br><img src="img/arrow.png" style="height:20px;width:auto;margin:5px;margin-bottom:-2px">Gewertet werden Anzahl und Vielfalt der Antworten.</p>***<p>Antworte - wenn m\u00f6glich - mit einzelnen W\u00f6rtern und nicht in Form von Phrasen.<br>Beginne f&uumlr jedes Wort eine neue Zeile (durch Dr&uumlcken der Enter-Taste).</p>***<p>Beispiel zum Begriffspaar <b>Sommer - wei\u00df</b><br><br>Segel<br>Griechenland<br>Sonnencreme<br>Zitroneneis<br>...</p>***<p><i>Bei Fragen wende Dich bitte an die Versuchsleiterin/den Versuchsleiter.</i></p><p>Dr&uumlcke Enter, um zu beginnen.']
+};
+
+var intro_1 = [];
+var intro_2 = [];
+var intro_3 = [];
+var intro_4 = [];
+
+/// Block 1:Zuordnungsfunktion random Test zu random subtest zu Intro
+if (checkAvailability(test_block_1_1.questions[0], fluency_rand[0]) === true){
+	intro_1 = intro_fluency;
+	console.log('fluency');
+}
+else if(checkAvailability(test_block_1_1.questions[0], flexibility_rand[0]) === true){
+	intro_1 = intro_flexibility;
+	console.log('flexibility');
+
+}
+else if (checkAvailability(test_block_1_1.questions[0], dissociation_rand[0]) === true) {
+	intro_1 = intro_dissociation;
+	console.log('disso');
+
+}
+else {
+	intro_1 = intro_combination;
+	console.log('combi');
+};
+
+/// Block 2:Zuordnungsfunktion random Test zu random subtest zu Intro
+if (checkAvailability(test_block_2_1.questions[0], fluency_rand[0]) === true){
+	intro_2 = intro_fluency;
+	console.log('fluency');
+}
+else if(checkAvailability(test_block_2_1.questions[0], flexibility_rand[0]) === true){
+	intro_2 = intro_flexibility;
+	console.log('flexibility');
+
+}
+else if (checkAvailability(test_block_2_1.questions[0], dissociation_rand[0]) === true) {
+	intro_2 = intro_dissociation;
+	console.log('disso');
+
+}
+else {
+	intro_2 = intro_combination;
+	console.log('combi');
+};
+
+/// Block 3:Zuordnungsfunktion random Test zu random subtest zu Intro
+if (checkAvailability(test_block_3_1.questions[0], fluency_rand[0]) === true){
+	intro_3 = intro_fluency;
+	console.log('fluency');
+}
+else if(checkAvailability(test_block_3_1.questions[0], flexibility_rand[0]) === true){
+	intro_3 = intro_flexibility;
+	console.log('flexibility');
+
+}
+else if (checkAvailability(test_block_3_1.questions[0], dissociation_rand[0]) === true) {
+	intro_3 = intro_dissociation;
+	console.log('disso');
+
+}
+else {
+	intro_1 = intro_combination;
+	console.log('combi');
+};
+
+/// Block 4:Zuordnungsfunktion random Test zu random subtest zu Intro
+if (checkAvailability(test_block_4_1.questions[0], fluency_rand[0]) === true){
+	intro_4 = intro_fluency;
+	console.log('fluency');
+}
+else if(checkAvailability(test_block_4_1.questions[0], flexibility_rand[0]) === true){
+	intro_4 = intro_flexibility;
+	console.log('flexibility');
+
+}
+else if (checkAvailability(test_block_4_1.questions[0], dissociation_rand[0]) === true) {
+	intro_4 = intro_dissociation;
+	console.log('disso');
+
+}
+else {
+	intro_4 = intro_combination;
+	console.log('combi');
+};
+
+var outro = {
+	type: 'text',
+	text: ['<p> <h1><b>Herzlichen Dank !</b></h1></p><br><img src = img/smile.png style="height: 200px;width: auto">']
+
+};
+
+var intro_asso_rec_recall = {
+	type: 'text',
+	text: ['<p><h2>Instruktion: Assoziationskette</h2></p><p>Nachfolgend bitten wir Dich, eine letzte Kette von Assoziationen zu bilden. Wie zuvor sollte das erste Wort eine Assoziation zum vorgegebenen Begriff (z.B. Sommer) sein und jedes weitere an das jeweils vorherige assoziativ anschlieen. Z.B. Sommer - Strand - Sandburg - Schloss - Ritter - usw.... </p>***<p>- Versuche m\u00f6glichst viele Assoziationen anzuf\u00fchren.<br>- Sei abwechslungsreich.<br>- Nenne einzelne W\u00f6rter und antworte nicht phrasenhaft.<br>- Beginne f\u00fcr jede Assoziation eine neue Zeile (durch Dr\u00fccken der Enter-Taste). </p><p><i>Bei Fragen wende Dich bitte an die Versuchsleiterin/den Versuchsleiter.</i></p><p>Dr&uumlcke Enter, um zu beginnen.']
+};
+
+
+var lead_asso_rec_recall = {
+	type: 'text',
+	text: ['<p>Vielen Dank!<br><br></p>***<p> Die letzte Aufgabe besteht nun darin, Dich an genau jene W\u00f6rter zu erinnern, die Du gerade erst selbst produziert hast.</p> <p><br>- Trage Deine Erinnerungen in beliebiger Reihenfolge und in separaten Zeilen (durch Dr\u00fccken der Enter-Taste) in das nachfolgende Textfeld ein. <br>- Nenne ausschlie\u00dflich jene W\u00f6rter, die Teil der j\u00fcngsten Assoziationskette waren.- Erinnerungen an Assoziationen fr\u00fcherer Aufgaben werden als Fehler gewertet.<br>- Dir stehen 2 Minuten zur Verf\u00fcgung.</p><p><i> Bei Fragen wende Dich an die Versuchsleiterin / den Versuchsleiter. Dr\u00fccke die Enter-Taste, um zu beginnen.</i> </p><br><p>Dr&uumlcke Enter, um zu beginnen.']
+}
+
+var waiting = {
+	type: "single-stim",
+	stimuli: logo,
+	is_html: true,
+	choices: [87],
+	timing_post_trial: 10,
+	prompt: '<p><h4>Bitte minimiere dieses Fenster und wende Dich an Deine Ansprechperson.</p><p>Sie wird das Browserfenster minimieren und zun\u00e4chst mit einem anderen Teil der Untersuchung fortfahren. </h4><h3><br>Wenn Du sp\u00e4ter dazu aufgefordert wirst, dann dr\u00fccke bitte den Buchstaben </p><p style="font-size:50px"><b>w</b></p>'
+};
+
+
+var asso_rec_production = {
+	//type: "survey-text2",
+	type: "survey-text3",
+	//questions: [['stim1'],['stim2']]
+	questions: [random_stimuli_left],
+	data: [random_stimuli_left],
+	rows: 10,
+	columns: 10
+	//questions: [stimuli2]
+};
+
+
+var asso_rec_recall = {
+	//type: "survey-text2",
+	type: "survey-text3",
+	//questions: [['stim1'],['stim2']]
+	questions: [random_stimuli_left],
+	data: [random_stimuli_left],
+	rows: 10,
+	columns: 10
+	//questions: [stimuli2]
+};
+
+
+//var y = checkAvailability(test_block_1_1.questions[0], fluency_rand[0]);
+//console.log(y);
+
+jsPsych.init({
+	display_element: $("#jspsych_target"),
+	experiment_structure: [
+		//welcome_message,
+		//instruction_block,
+		demog_block,
+		intro_1,
+		test_block_1_1,
+		Lead,
+		test_block_1_2,
+		intro_2,
+		test_block_2_1,
+		Lead,
+		test_block_2_2,
+		intro_3,
+		test_block_3_1,
+		Lead,
+		test_block_3_2,
+		intro_4,
+		test_block_4_1,
+		Lead,
+		test_block_4_2,
+		waiting,
+		intro_asso_rec_recall,
+		asso_rec_production,
+		lead_asso_rec_recall,
+		asso_rec_recall,
+		outro],
+		on_finish: function(data) {
+			$('#jspsych_target').append($('<pre>',{
+				html:jsPsych.dataAsCSV()
+				//html: JSON.stringify(data,undefined,2)
+			}))
+			//jsPsych.saveCSVdata("WAT_t2_data.txt");
+			ext = JSON.stringify(data[[0]],undefined,2);
+			jsPsych.saveCSVdata("Lab_Association_" + ext.slice(88,95) + "Stim_" +category_rand +  ".txt");
+		}
+});
+
+</script>
+
+
+</html>

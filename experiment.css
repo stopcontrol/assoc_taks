@@ -1,0 +1,33 @@
+/* experiment.css */
+
+body {
+	background: #fff;
+	margin: 0;
+	padding: 0;
+	font-size: 20px;
+	font-family: 'Palatino Linotype', FreeSerif, serif;
+}
+
+#jspsych_target {
+	width: 700px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 150px;
+	text-align: center;
+}
+
+#jspsych_target pre {
+	text-align: left;
+}
+
+#instructions {
+	width: 500px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: left;
+}
+
+#jspsych_text {
+
+
+}
